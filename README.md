@@ -198,7 +198,71 @@ curl -X POST "http://localhost:8080/api/clientes/1/foto-selfie" \
   -F "arquivo=@selfie.jpg"
 ```
 
-### 6. Obter Fotos do Cliente em Base64
+### 6. Atualizar Cliente
+
+#### Opção 1: Atualização com JSON (sem fotos)
+```bash
+# Atualizar dados do cliente (sem alterar fotos)
+curl -X PUT "http://localhost:8080/api/clientes/1" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "João Silva Santos",
+    "email": "joao.santos@email.com",
+    "cpf": "12345678901",
+    "rg": "123456789",
+    "telefone": "11999999999",
+    "cep": "01234567",
+    "rua": "Rua das Flores",
+    "numero": "123",
+    "bairro": "Centro",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "nomeMae": "Maria Silva",
+    "dataNascimento": "1990-01-15",
+    "sexo": "M",
+    "estadoCivil": "Casado",
+    "naturezaOcupacao": "CLT",
+    "profissao": "Desenvolvedor Senior",
+    "nomeEmpresa": "Tech Company",
+    "rendaMensal": 7000.00
+  }'
+```
+
+#### Opção 2: Atualização com fotos (multipart/form-data)
+```bash
+# Atualizar cliente incluindo novas fotos
+curl -X PUT "http://localhost:8080/api/clientes/1" \
+  -H "Content-Type: multipart/form-data" \
+  -F "nome=João Silva Santos" \
+  -F "email=joao.santos@email.com" \
+  -F "cpf=12345678901" \
+  -F "rg=123456789" \
+  -F "telefone=11999999999" \
+  -F "cep=01234567" \
+  -F "rua=Rua das Flores" \
+  -F "numero=123" \
+  -F "bairro=Centro" \
+  -F "cidade=São Paulo" \
+  -F "estado=SP" \
+  -F "nomeMae=Maria Silva" \
+  -F "dataNascimento=1990-01-15" \
+  -F "sexo=M" \
+  -F "estadoCivil=Casado" \
+  -F "naturezaOcupacao=CLT" \
+  -F "profissao=Desenvolvedor Senior" \
+  -F "nomeEmpresa=Tech Company" \
+  -F "rendaMensal=7000.00" \
+  -F "fotoDocumento=@novo_documento.jpg" \
+  -F "fotoSelfie=@nova_selfie.jpg"
+```
+
+**Observações sobre a atualização com fotos:**
+- As fotos são opcionais no PUT - você pode enviar apenas uma ou nenhuma
+- Se uma nova foto for enviada, a foto anterior será automaticamente deletada
+- Se não enviar uma foto específica, a foto atual do cliente será mantida
+- Todos os outros campos são obrigatórios quando usar multipart/form-data
+
+### 7. Obter Fotos do Cliente em Base64
 ```bash
 # Obter fotos do cliente em formato base64
 GET /api/clientes/{id}/fotos

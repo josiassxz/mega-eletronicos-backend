@@ -116,6 +116,19 @@ Content-Type: multipart/form-data
 - fotoDocumento: arquivo de imagem (opcional)
 - fotoSelfie: arquivo de imagem (opcional)
 
+# Atualizar cliente (duas opções)
+# Opção 1: Sem fotos (JSON)
+PUT /api/clientes/{id}
+Content-Type: application/json
+{dados do cliente em JSON}
+
+# Opção 2: Com fotos (Multipart Form Data)
+PUT /api/clientes/{id}
+Content-Type: multipart/form-data
+- Todos os campos do cliente como form-data
+- fotoDocumento: arquivo de imagem (opcional - substitui a anterior se enviada)
+- fotoSelfie: arquivo de imagem (opcional - substitui a anterior se enviada)
+
 # Upload de fotos separado (após criação)
 POST /api/clientes/{id}/foto-documento
 POST /api/clientes/{id}/foto-selfie

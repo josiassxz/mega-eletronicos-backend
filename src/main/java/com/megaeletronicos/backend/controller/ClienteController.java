@@ -193,6 +193,113 @@ public class ClienteController {
         }
     }
     
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Atualizar cliente com fotos")
+    public ResponseEntity<?> atualizarComFotos(
+            @PathVariable Long id,
+            @RequestParam("nome") String nome,
+            @RequestParam("email") String email,
+            @RequestParam("cpf") String cpf,
+            @RequestParam("rg") String rg,
+            @RequestParam("telefone") String telefone,
+            @RequestParam("cep") String cep,
+            @RequestParam("rua") String rua,
+            @RequestParam("numero") String numero,
+            @RequestParam("bairro") String bairro,
+            @RequestParam("cidade") String cidade,
+            @RequestParam("estado") String estado,
+            @RequestParam("nomeMae") String nomeMae,
+            @RequestParam("dataNascimento") String dataNascimento,
+            @RequestParam("sexo") String sexo,
+            @RequestParam("estadoCivil") String estadoCivil,
+            @RequestParam("naturezaOcupacao") String naturezaOcupacao,
+            @RequestParam("profissao") String profissao,
+            @RequestParam(value = "nomeEmpresa", required = false) String nomeEmpresa,
+            @RequestParam("rendaMensal") Double rendaMensal,
+            @RequestParam(value = "fotoDocumento", required = false) MultipartFile fotoDocumento,
+            @RequestParam(value = "fotoSelfie", required = false) MultipartFile fotoSelfie) {
+        
+        try {
+            // Verificar se o cliente existe
+            Optional<Cliente> clienteExistente = clienteService.buscarPorId(id);
+            if (clienteExistente.isEmpty()) {
+                Map<String, String> erro = new HashMap<>();
+                erro.put("erro", "Cliente não encontrado");
+                return ResponseEntity.notFound().build();
+            }
+            
+            Cliente cliente = clienteExistente.get();
+            
+            // Atualizar dados do cliente
+            cliente.setNome(nome);
+            cliente.setEmail(email);
+            cliente.setCpf(cpf);
+            cliente.setRg(rg);
+            cliente.setTelefone(telefone);
+            cliente.setCep(cep);
+            cliente.setRua(rua);
+            cliente.setNumero(numero);
+            cliente.setBairro(bairro);
+            cliente.setCidade(cidade);
+            cliente.setEstado(estado);
+            cliente.setNomeMae(nomeMae);
+            cliente.setDataNascimento(java.time.LocalDate.parse(dataNascimento));
+            cliente.setSexo(sexo);
+            cliente.setEstadoCivil(estadoCivil);
+            cliente.setNaturezaOcupacao(naturezaOcupacao);
+            cliente.setProfissao(profissao);
+            cliente.setNomeEmpresa(nomeEmpresa);
+            cliente.setRendaMensal(rendaMensal);
+
+            // Atualizar foto do documento se fornecida
+            if (fotoDocumento != null && !fotoDocumento.isEmpty()) {
+                // Deletar foto anterior se existir
+                if (cliente.getFotoDocumento() != null) {
+                    try {
+                        fileStorageService.deletarArquivo(cliente.getFotoDocumento());
+                    } catch (IOException e) {
+                        System.err.println("Erro ao deletar foto anterior do documento: " + e.getMessage());
+                    }
+                }
+                // Salvar nova foto
+                String nomeArquivoDocumento = fileStorageService.salvarArquivo(fotoDocumento);
+                cliente.setFotoDocumento(nomeArquivoDocumento);
+            }
+
+            // Atualizar foto selfie se fornecida
+            if (fotoSelfie != null && !fotoSelfie.isEmpty()) {
+                // Deletar foto anterior se existir
+                if (cliente.getFotoSelfie() != null) {
+                    try {
+                        fileStorageService.deletarArquivo(cliente.getFotoSelfie());
+                    } catch (IOException e) {
+                        System.err.println("Erro ao deletar foto anterior selfie: " + e.getMessage());
+                    }
+                }
+                // Salvar nova foto
+                String nomeArquivoSelfie = fileStorageService.salvarArquivo(fotoSelfie);
+                cliente.setFotoSelfie(nomeArquivoSelfie);
+            }
+
+            // Salvar cliente atualizado
+            Cliente clienteAtualizado = clienteService.salvar(cliente);
+            return ResponseEntity.ok(clienteAtualizado);
+            
+        } catch (IOException e) {
+            Map<String, String> erro = new HashMap<>();
+            erro.put("erro", "Erro ao salvar arquivo: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
+        } catch (RuntimeException e) {
+            Map<String, String> erro = new HashMap<>();
+            erro.put("erro", e.getMessage());
+            return ResponseEntity.badRequest().body(erro);
+        } catch (Exception e) {
+            Map<String, String> erro = new HashMap<>();
+            erro.put("erro", "Erro ao processar dados: " + e.getMessage());
+            return ResponseEntity.badRequest().body(erro);
+        }
+    }
+    
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletar cliente")
     public ResponseEntity<?> deletar(@PathVariable Long id) {
