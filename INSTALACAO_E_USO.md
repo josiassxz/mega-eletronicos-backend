@@ -85,7 +85,7 @@ GET /api/clientes/buscar?nome=João
 GET /api/clientes/buscar?email=joao@email.com
 GET /api/clientes/buscar?cpf=12345678901
 
-# Criar cliente
+# Criar cliente (JSON - sem fotos)
 POST /api/clientes
 {
   "nome": "João Silva",
@@ -109,9 +109,19 @@ POST /api/clientes
   "rendaMensal": 5000.00
 }
 
-# Upload de fotos
+# Criar cliente com fotos (Multipart Form Data - RECOMENDADO)
+POST /api/clientes
+Content-Type: multipart/form-data
+- Todos os campos do cliente como form-data
+- fotoDocumento: arquivo de imagem (opcional)
+- fotoSelfie: arquivo de imagem (opcional)
+
+# Upload de fotos separado (após criação)
 POST /api/clientes/{id}/foto-documento
 POST /api/clientes/{id}/foto-selfie
+
+# Obter fotos do cliente em base64
+GET /api/clientes/{id}/fotos
 ```
 
 ### 📁 Estrutura do Projeto

@@ -62,6 +62,7 @@ Acesse a documentação interativa da API em: `http://localhost:8080/swagger-ui.
 - `DELETE /api/clientes/{id}` - Deletar cliente
 - `POST /api/clientes/{id}/foto-documento` - Upload foto do documento
 - `POST /api/clientes/{id}/foto-selfie` - Upload foto selfie
+- `GET /api/clientes/{id}/fotos` - Obter fotos do cliente em base64
 - `GET /api/clientes/uploads/{nomeArquivo}` - Visualizar arquivo
 
 ## Exemplos de Uso
@@ -85,8 +86,12 @@ POST /api/auth/login
 ```
 
 ### 3. Criar Cliente
+
+#### Opção 1: Criar cliente sem fotos (JSON)
 ```json
 POST /api/clientes
+Content-Type: application/json
+
 {
   "nome": "João Silva",
   "email": "joao@email.com",
@@ -110,6 +115,37 @@ POST /api/clientes
 }
 ```
 
+#### Opção 2: Criar cliente com fotos (Multipart Form Data)
+```bash
+POST /api/clientes
+Content-Type: multipart/form-data
+
+# Dados obrigatórios
+nome=João Silva
+email=joao@email.com
+cpf=12345678901
+rg=123456789
+telefone=11999999999
+cep=01234567
+rua=Rua das Flores
+numero=123
+bairro=Centro
+cidade=São Paulo
+estado=SP
+nomeMae=Maria Silva
+dataNascimento=1990-01-15
+sexo=M
+estadoCivil=Solteiro
+naturezaOcupacao=CLT
+profissao=Desenvolvedor
+rendaMensal=5000.00
+
+# Dados opcionais
+nomeEmpresa=Tech Company
+fotoDocumento=@documento.jpg
+fotoSelfie=@selfie.jpg
+```
+
 ### 4. Buscar Clientes com Filtros
 ```
 GET /api/clientes/buscar?nome=João
@@ -120,6 +156,36 @@ GET /api/clientes/buscar?estado=SP
 ```
 
 ### 5. Upload de Fotos
+
+#### Opção 1: Durante a criação do cliente (Recomendado)
+```bash
+# Criar cliente com fotos em uma única requisição
+curl -X POST "http://localhost:8080/api/clientes" \
+  -H "Content-Type: multipart/form-data" \
+  -F "nome=João Silva" \
+  -F "email=joao@email.com" \
+  -F "cpf=12345678901" \
+  -F "rg=123456789" \
+  -F "telefone=11999999999" \
+  -F "cep=01234567" \
+  -F "rua=Rua das Flores" \
+  -F "numero=123" \
+  -F "bairro=Centro" \
+  -F "cidade=São Paulo" \
+  -F "estado=SP" \
+  -F "nomeMae=Maria Silva" \
+  -F "dataNascimento=1990-01-15" \
+  -F "sexo=M" \
+  -F "estadoCivil=Solteiro" \
+  -F "naturezaOcupacao=CLT" \
+  -F "profissao=Desenvolvedor" \
+  -F "nomeEmpresa=Tech Company" \
+  -F "rendaMensal=5000.00" \
+  -F "fotoDocumento=@documento.jpg" \
+  -F "fotoSelfie=@selfie.jpg"
+```
+
+#### Opção 2: Upload separado após criação
 ```bash
 # Upload foto do documento
 curl -X POST "http://localhost:8080/api/clientes/1/foto-documento" \
@@ -131,6 +197,29 @@ curl -X POST "http://localhost:8080/api/clientes/1/foto-selfie" \
   -H "Content-Type: multipart/form-data" \
   -F "arquivo=@selfie.jpg"
 ```
+
+### 6. Obter Fotos do Cliente em Base64
+```bash
+# Obter fotos do cliente em formato base64
+GET /api/clientes/{id}/fotos
+
+# Exemplo de resposta:
+{
+  "clienteId": 1,
+  "fotos": {
+    "fotoDocumento": "iVBORw0KGgoAAAANSUhEUgAA...", // base64 da foto do documento
+    "fotoSelfie": "iVBORw0KGgoAAAANSUhEUgAA..."     // base64 da foto selfie
+  }
+}
+
+# Exemplo com curl:
+curl -X GET "http://localhost:8080/api/clientes/1/fotos"
+```
+
+**Observações sobre o endpoint de fotos em base64:**
+- Retorna apenas as fotos que existem (se o cliente não tem foto do documento, o campo não aparece na resposta)
+- As imagens são codificadas em base64 e podem ser usadas diretamente em tags `<img>` no frontend
+- Formato: `data:image/jpeg;base64,{base64_string}` (adicione o prefixo no frontend conforme necessário)
 
 ## Estrutura do Projeto
 

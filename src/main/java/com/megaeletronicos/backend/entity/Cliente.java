@@ -69,7 +69,7 @@ public class Cliente {
     private LocalDate dataNascimento;
     
     @NotBlank(message = "Sexo é obrigatório")
-    @Column(nullable = false, length = 1)
+    @Column(nullable = false, length = 10)
     private String sexo;
     
     @NotBlank(message = "Estado civil é obrigatório")

@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -54,5 +55,20 @@ public class FileStorageService {
     
     public Path obterCaminhoArquivo(String nomeArquivo) {
         return Paths.get(uploadDir).resolve(nomeArquivo);
+    }
+    
+    public String obterArquivoBase64(String nomeArquivo) throws IOException {
+        if (nomeArquivo == null || nomeArquivo.isEmpty()) {
+            return null;
+        }
+        
+        Path caminhoArquivo = Paths.get(uploadDir).resolve(nomeArquivo);
+        
+        if (!Files.exists(caminhoArquivo)) {
+            return null;
+        }
+        
+        byte[] arquivoBytes = Files.readAllBytes(caminhoArquivo);
+        return Base64.getEncoder().encodeToString(arquivoBytes);
     }
 }
